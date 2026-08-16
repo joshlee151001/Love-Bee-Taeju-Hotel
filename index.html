@@ -31,7 +31,7 @@
         .kiosk {
             width: 100%;
             max-width: 480px;
-            min-height: 100vh;
+            height: 100vh;
             background: linear-gradient(165deg, #EAF4FB 0%, #D4EAF8 100%);
             position: relative;
             overflow: hidden;
@@ -40,8 +40,8 @@
         /* ── Screens ── */
         .screen {
             position: absolute;
-            top: 0; left: 0; right: 0;
-            min-height: 100vh;
+            top: 0; left: 0; right: 0; bottom: 0;
+            height: 100%;
             display: none;
             flex-direction: column;
             animation: fadeIn 0.3s ease;
@@ -114,6 +114,20 @@
             cursor: pointer;
             line-height: 1;
             padding: 0 4px;
+            flex-shrink: 0;
+        }
+
+        .header-done-btn {
+            margin-left: auto;
+            background: var(--gold);
+            border: none;
+            color: var(--navy);
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 7px 18px;
+            border-radius: 20px;
+            cursor: pointer;
             flex-shrink: 0;
         }
 
@@ -263,8 +277,10 @@
         /* ── Form Body ── */
         .form-body {
             flex: 1;
+            min-height: 0;
             padding: 24px 22px 32px;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .form-subtitle {
@@ -1097,6 +1113,7 @@
         <div class="form-header-bar">
             <button class="back-btn" onclick="showScreen('screen-main')">‹</button>
             <div class="form-title">Staff <span class="staff-badge">STAFF</span></div>
+            <button class="header-done-btn" id="staff-done-btn" onclick="addReservation()" style="display:none;">완료</button>
         </div>
 
         <div class="form-body">
@@ -1171,6 +1188,17 @@
                             <option value="Blue Room">Blue Room · 디럭스</option>
                             <option value="BlueGold Room">BlueGold Room · 프리미엄 스위트</option>
                         </select>
+                    </div>
+
+                    <div class="row-2 field-spacer">
+                        <div class="field-group">
+                            <label class="field-label">체크인 날짜</label>
+                            <input type="date" class="field-input" id="st-checkin-date">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">체크아웃 날짜</label>
+                            <input type="date" class="field-input" id="st-checkout-date">
+                        </div>
                     </div>
 
                     <div class="field-group">
@@ -1318,6 +1346,8 @@ function switchTab(tab) {
         document.getElementById('tab-' + t).classList.toggle('active', t === tab);
         document.getElementById('panel-' + t).classList.toggle('active', t === tab);
     });
+    const doneBtn = document.getElementById('staff-done-btn');
+    if (doneBtn) doneBtn.style.display = (tab === 'add') ? 'block' : 'none';
 }
 
 /* ══════════════════
@@ -1429,15 +1459,16 @@ function addReservation() {
     const sm = document.getElementById('st-birth-m').value.trim().padStart(2,'0');
     const sd = document.getElementById('st-birth-d').value.trim().padStart(2,'0');
     const birth = (sy && sm && sd) ? `${sy}-${sm}-${sd}` : '';
-    const notes  = '';
     const room   = document.getElementById('st-room').value;
+    const checkinDate  = document.getElementById('st-checkin-date').value;
+    const checkoutDate = document.getElementById('st-checkout-date').value;
     const errEl  = document.getElementById('st-error');
 
     if (!name || !age || !gender || !birth || !room) {
         errEl.style.display = 'block'; return;
     }
     errEl.style.display = 'none';
-    reservations.push({ name, age, gender, birth, room, meals: { breakfast: meals.breakfast, dinner: meals.dinner }, checkedIn: false });
+    reservations.push({ name, age, gender, birth, room, checkinDate, checkoutDate, meals: { breakfast: meals.breakfast, dinner: meals.dinner }, checkedIn: false });
     clearStaffForm();
     renderAll();
     switchTab('status');
@@ -1494,21 +1525,25 @@ function renderReservations() {
         el.innerHTML = '<div style="font-size:13px;color:#B0C4D4;text-align:center;padding:12px 0;">등록된 예약이 없습니다</div>';
         return;
     }
-    el.innerHTML = reservations.map((r, i) => `
+    el.innerHTML = reservations.map((r, i) => {
+        const ciDate = r.checkinDate  ? r.checkinDate.replace(/-/g, '.') : '—';
+        const coDate = r.checkoutDate ? r.checkoutDate.replace(/-/g, '.') : '—';
+        return `
         <div class="res-item" style="border:1.5px solid ${r.checkedIn ? '#AED6F1' : '#EDD89A'}">
             <div class="res-row">
                 <span class="res-name">${r.name}</span>
                 <span class="res-badge ${r.checkedIn ? 'checked-in' : 'waiting'}">${r.checkedIn ? '체크인 중' : '대기'}</span>
             </div>
-            <div class="res-info">${r.room} · ${r.gender} · ${r.age}세${r.notes ? ' · ' + r.notes : ''}</div>
+            <div class="res-info">${r.room} · ${r.gender} · ${r.age}세</div>
+            <div class="res-info" style="margin-top:3px;font-size:12px;color:#6BA3C4;">체크인 ${ciDate} → 체크아웃 ${coDate}</div>
             <div class="res-actions">
                 ${r.checkedIn
                     ? `<button class="btn-red" onclick="forceCheckout(${i})">강제 체크아웃</button>`
                     : `<button class="btn-red" onclick="deleteReservation(${i})">삭제</button>`
                 }
             </div>
-        </div>
-    `).join('');
+        </div>`;
+    }).join('');
 }
 
 /* ══════════════════
@@ -1548,6 +1583,10 @@ function clearStaffForm() {
     clearForm('st');
     const r = document.getElementById('st-room');
     if (r) r.value = '';
+    const ci = document.getElementById('st-checkin-date');
+    if (ci) ci.value = '';
+    const co = document.getElementById('st-checkout-date');
+    if (co) co.value = '';
     const e = document.getElementById('st-error');
     if (e) e.style.display = 'none';
     resetMeals();
