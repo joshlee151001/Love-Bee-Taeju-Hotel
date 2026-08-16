@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Love Bee TeaJu Hotel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+        :root {
+            --gold:       #C4973A;
+            --gold-light: #D9B96A;
+            --gold-dark:  #A07828;
+            --navy:       #1B2A4A;
+            --blue-mid:   #6BA3C4;
+            --blue-light: #AED6F1;
+            --white:      #FFFFFF;
+            --shadow:     0 8px 32px rgba(27,42,74,0.10);
+        }
+
+        body {
+            background: #C8DFF0;
+            font-family: 'Noto Sans KR', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            color: var(--navy);
+        }
+
+        .kiosk {
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            background: linear-gradient(165deg, #EAF4FB 0%, #D4EAF8 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ── Screens ── */
+        .screen {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            animation: fadeIn 0.3s ease;
+        }
+        .screen.active { display: flex; }
+
+        @keyframes fadeIn {
+            from { opacity:0; transform:translateY(12px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+
+        /* ── Hotel Header ── */
+        .hotel-header {
+            background: var(--navy);
+            padding: 28px 24px 20px;
+            text-align: center;
+            user-select: none;
+        }
+
+        .hotel-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 8px;
+        }
+
+        .bee-icon { width: 40px; height: 40px; }
+
+        .hotel-name-main {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--white);
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: default;
+        }
+
+        .hotel-name-sub {
+            font-family: 'Noto Sans KR', sans-serif;
+            color: var(--gold-light);
+            font-size: 11px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-top: 2px;
+        }
+
+        .hotel-stars {
+            color: var(--gold);
+            font-size: 12px;
+            letter-spacing: 5px;
+            margin-top: 6px;
+        }
+
+        /* ── Form Header ── */
+        .form-header-bar {
+            background: var(--navy);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 62px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--gold);
+            font-size: 26px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0 4px;
+            flex-shrink: 0;
+        }
+
+        .header-done-btn {
+            margin-left: auto;
+            background: var(--gold);
+            border: none;
+            color: var(--navy);
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 7px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .form-title {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--white);
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        /* ── Main Content ── */
+        .main-content {
+            flex: 1;
+            padding: 28px 22px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .welcome-text { text-align: center; margin-bottom: 4px; }
+
+        .welcome-text h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 5px;
+        }
+
+        .welcome-text p {
+            font-size: 12px;
+            color: var(--blue-mid);
+            font-weight: 300;
+        }
+
+        /* ── Service Cards ── */
+        .service-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 30px 22px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: transform 0.15s;
+            border: 2px solid transparent;
+        }
+        .service-card:active { transform: scale(0.975); }
+        .service-card.checkin  { border-color: var(--gold-light); }
+        .service-card.checkout { border-color: var(--blue-light); }
+
+        .card-icon {
+            width: 60px; height: 60px;
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+        .service-card.checkin  .card-icon { background: linear-gradient(135deg,#FDF6E3,#EDD89A); }
+        .service-card.checkout .card-icon { background: linear-gradient(135deg,#D6ECFA,#AED6F1); }
+
+        .card-text h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 4px;
+        }
+        .card-text p { font-size: 12px; color: var(--blue-mid); font-weight: 300; }
+
+        .card-arrow { margin-left: auto; color: var(--gold); font-size: 24px; }
+
+        /* ── Bottom Info ── */
+        .bottom-info {
+            padding: 20px 22px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .gold-divider {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .gold-divider::before,
+        .gold-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--gold-light));
+        }
+        .gold-divider::after {
+            background: linear-gradient(to left, transparent, var(--gold-light));
+        }
+        .gold-diamond {
+            width: 6px; height: 6px;
+            background: var(--gold-light);
+            transform: rotate(45deg);
+            flex-shrink: 0;
+        }
+
+        .slogan {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--blue-mid);
+            letter-spacing: 1px;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .time-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .time-clock {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--navy);
+            letter-spacing: 2px;
+        }
+
+        .time-date {
+            font-size: 12px;
+            color: var(--blue-mid);
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        .checkin-hours {
+            font-size: 11px;
+            color: #B0C4D4;
+            letter-spacing: 1px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+        }
+
+        /* ── Form Body ── */
+        .form-body {
+            flex: 1;
+            min-height: 0;
+            padding: 24px 22px 32px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .form-subtitle {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 4px;
+        }
+
+        .form-desc {
+            font-size: 12px;
+            color: var(--blue-mid);
+            margin-bottom: 22px;
+            font-weight: 300;
+        }
+
+        /* ── Fields ── */
+        .field-group { margin-bottom: 16px; }
+
+        .field-label {
+            display: block;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--gold-dark);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 7px;
+        }
+
+        .field-input {
+            width: 100%;
+            background: var(--white);
+            border: 1.5px solid #C8E3F0;
+            border-radius: 12px;
+            padding: 13px 15px;
+            font-size: 14px;
+            font-family: 'Noto Sans KR', sans-serif;
+            color: var(--navy);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .field-input:focus { border-color: var(--gold); }
+        .field-input::placeholder { color: #B8CFDD; }
+
+        select.field-input {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23C4973A' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            cursor: pointer;
+        }
+
+        /* 나이+성별 나란히 */
+        .row-2 { display: flex; gap: 12px; }
+        .row-2 .field-group { flex: 1; margin-bottom: 0; }
+
+        .radio-group { display: flex; gap: 8px; }
+
+        .radio-btn {
+            flex: 1;
+            background: var(--white);
+            border: 1.5px solid #C8E3F0;
+            border-radius: 12px;
+            padding: 12px 6px;
+            text-align: center;
+            font-size: 13px;
+            font-family: 'Noto Sans KR', sans-serif;
+            color: var(--navy);
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+        .radio-btn.selected {
+            border-color: var(--gold);
+            background: linear-gradient(135deg,#FDF6E3,#F5E8C0);
+            color: var(--gold-dark);
+            font-weight: 500;
+        }
+
+        /* 새 예약 등록 버튼 */
+        .btn-add-reservation {
+            width: 100%;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            border: none;
+            border-radius: 14px;
+            padding: 15px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--white);
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(196,151,58,0.28);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .btn-add-reservation:active { opacity: 0.85; }
+
+        /* 등록 폼 오버레이 느낌 */
+        .add-form-box {
+            background: #F4F9FD;
+            border: 1.5px solid #C8E3F0;
+            border-radius: 16px;
+            padding: 18px 16px;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .add-form-box.open { display: block; }
+
+        .field-spacer { margin-bottom: 16px; }
+
+        /* ── Buttons ── */
+        .btn-gold {
+            width: 100%;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            border: none;
+            border-radius: 14px;
+            padding: 17px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--white);
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 16px rgba(196,151,58,0.28);
+            transition: opacity 0.2s;
+            letter-spacing: 0.5px;
+        }
+        .btn-gold:active { opacity: 0.85; }
+
+        .btn-blue {
+            width: 100%;
+            background: linear-gradient(135deg, #5B9BD5, #3A7EC4);
+            border: none;
+            border-radius: 14px;
+            padding: 17px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--white);
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(58,126,196,0.28);
+            transition: opacity 0.2s;
+        }
+        .btn-blue:active { opacity: 0.85; }
+
+        .btn-red {
+            background: none;
+            border: 1.5px solid #E8A0A0;
+            border-radius: 10px;
+            padding: 7px 14px;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 12px;
+            color: #C0392B;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .btn-red:active { background: #FEF0F0; }
+
+        /* ── Error ── */
+        .error-msg {
+            background: #FEF0F0;
+            border: 1px solid #F5C6C6;
+            border-radius: 10px;
+            padding: 11px 15px;
+            font-size: 13px;
+            color: #C0392B;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        /* ── Success ── */
+        .success-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 36px 30px;
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 96px; height: 96px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 46px;
+            margin-bottom: 22px;
+        }
+        .success-icon.gold { background: linear-gradient(135deg,#FDF6E3,#EDD89A); box-shadow: 0 6px 20px rgba(196,151,58,0.20); }
+        .success-icon.blue { background: linear-gradient(135deg,#D6ECFA,#AED6F1); box-shadow: 0 6px 20px rgba(91,155,213,0.20); }
+
+        .success-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 18px;
+        }
+
+        .room-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 18px 26px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        .room-card.gold { border: 2px solid var(--gold-light); }
+        .room-card.blue { border: 2px solid var(--blue-light); }
+
+        .room-label {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--gold-dark);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .room-name {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--navy);
+        }
+
+        .success-msg {
+            font-size: 15px;
+            color: var(--navy);
+            font-weight: 500;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .countdown { font-size: 12px; color: #B0C4D4; font-weight: 300; }
+
+        /* ── Meal Toggle ── */
+        .meal-toggle-group { display: flex; gap: 10px; }
+
+        .meal-toggle {
+            flex: 1;
+            background: var(--white);
+            border: 2px solid #C8E3F0;
+            border-radius: 13px;
+            padding: 14px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+        .meal-toggle .meal-icon { font-size: 22px; margin-bottom: 5px; }
+        .meal-toggle .meal-name {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--blue-mid);
+        }
+        .meal-toggle .meal-sub {
+            font-size: 10px;
+            color: #B8CFDD;
+            margin-top: 2px;
+        }
+        .meal-toggle.selected {
+            border-color: var(--gold);
+            background: linear-gradient(135deg, #FDF6E3, #F5E8C0);
+        }
+        .meal-toggle.selected .meal-name { color: var(--gold-dark); }
+        .meal-toggle.selected .meal-sub  { color: var(--gold-light); }
+
+        /* ── Benefits Screen ── */
+        .benefits-body {
+            flex: 1;
+            padding: 28px 24px 36px;
+            overflow-y: auto;
+        }
+
+        .benefits-guest {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .benefits-guest-label {
+            font-size: 11px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            color: var(--gold-dark);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+        .benefits-guest-name {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--navy);
+        }
+
+        .benefits-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .benefit-card {
+            background: var(--white);
+            border: 2px solid var(--gold-light);
+            border-radius: 16px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+        .benefit-card.no-benefit {
+            border-color: #C8E3F0;
+            opacity: 0.55;
+        }
+
+        .benefit-icon-wrap {
+            width: 50px; height: 50px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #FDF6E3, #EDD89A);
+        }
+        .benefit-card.no-benefit .benefit-icon-wrap {
+            background: #EAF4FB;
+        }
+
+        .benefit-info-name {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 3px;
+        }
+        .benefit-info-sub {
+            font-size: 12px;
+            color: var(--blue-mid);
+            font-weight: 300;
+        }
+        .benefit-check {
+            margin-left: auto;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .benefits-note {
+            text-align: center;
+            font-size: 12px;
+            color: var(--blue-mid);
+            font-weight: 300;
+            margin-top: 20px;
+            padding: 14px 16px;
+            background: rgba(174,214,241,0.18);
+            border-radius: 12px;
+            line-height: 1.6;
+        }
+
+        /* ── Custom Date Input ── */
+        .date-parts {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .date-part {
+            background: var(--white);
+            border: 1.5px solid #C8E3F0;
+            border-radius: 12px;
+            padding: 13px 10px;
+            font-size: 15px;
+            font-family: 'Noto Sans KR', sans-serif;
+            color: var(--navy);
+            outline: none;
+            text-align: center;
+            transition: border-color 0.2s;
+        }
+        .date-part:focus { border-color: var(--gold); }
+        .date-part::placeholder { color: #B8CFDD; font-size: 13px; }
+        .date-part.year-part { width: 90px; }
+        .date-part.month-part,
+        .date-part.day-part   { width: 56px; }
+        .date-sep { color: #B8CFDD; font-size: 16px; font-weight: 300; flex-shrink: 0; }
+
+        /* ── Divider ── */
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--gold-light), transparent);
+            margin: 20px 0;
+        }
+
+        /* ── Staff Screen ── */
+        .staff-badge {
+            background: #E74C3C;
+            color: white;
+            font-size: 9px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-left: 8px;
+            vertical-align: middle;
+            letter-spacing: 0.5px;
+        }
+
+        /* 방 상태판 */
+        .room-status-grid {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .room-status-card {
+            flex: 1;
+            background: var(--white);
+            border-radius: 14px;
+            padding: 16px 14px;
+            border: 2px solid #C8E3F0;
+            text-align: center;
+        }
+        .room-status-card.occupied { border-color: var(--gold-light); background: linear-gradient(135deg,#FDF9F0,#FAF3DC); }
+        .room-status-card.vacant   { border-color: #AED6F1; background: linear-gradient(135deg,#F0F8FF,#E0F0FA); }
+
+        .room-status-name {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 6px;
+        }
+
+        .room-status-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            margin: 0 auto 6px;
+        }
+        .room-status-dot.occupied { background: var(--gold); }
+        .room-status-dot.vacant   { background: #5B9BD5; }
+
+        .room-status-text {
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .room-status-text.occupied { color: var(--gold-dark); }
+        .room-status-text.vacant   { color: #3A7EC4; }
+
+        .room-guest-name {
+            font-size: 11px;
+            color: var(--blue-mid);
+            margin-top: 4px;
+            font-weight: 300;
+        }
+
+        /* 예약 목록 */
+        .res-item {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 14px 15px;
+            margin-bottom: 10px;
+        }
+
+        .res-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .res-name { font-weight: 600; font-size: 14px; }
+
+        .res-badge {
+            font-size: 10px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+        .res-badge.waiting    { background: #F9F1D9; color: var(--gold-dark); }
+        .res-badge.checked-in { background: #D6ECFA; color: #2E6EA6; }
+
+        .res-info { font-size: 12px; color: var(--blue-mid); margin-bottom: 8px; }
+
+        .res-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        /* Staff tabs */
+        .staff-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            background: #E0EFF8;
+            border-radius: 12px;
+            padding: 4px;
+        }
+
+        .staff-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--blue-mid);
+            cursor: pointer;
+            border-radius: 9px;
+            transition: all 0.2s;
+        }
+
+        .staff-tab.active {
+            background: var(--white);
+            color: var(--navy);
+            box-shadow: 0 2px 8px rgba(27,42,74,0.08);
+        }
+
+        .staff-panel { display: none; }
+        .staff-panel.active { display: block; }
+
+        /* footer */
+        .footer-text {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 10px;
+            color: #9BBDD4;
+            letter-spacing: 2px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+<div class="kiosk">
+
+    <!-- ══════════════════════════════
+         MAIN SCREEN
+    ══════════════════════════════ -->
+    <div class="screen active" id="screen-main">
+        <div class="hotel-header">
+            <div class="hotel-logo">
+                <svg class="bee-icon" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <ellipse cx="10" cy="20" rx="9" ry="5" fill="rgba(174,214,241,0.75)" transform="rotate(-18 10 20)"/>
+                    <ellipse cx="34" cy="20" rx="9" ry="5" fill="rgba(174,214,241,0.75)" transform="rotate(18 34 20)"/>
+                    <ellipse cx="22" cy="27" rx="9" ry="11" fill="#C4973A"/>
+                    <rect x="13" y="24.5" width="18" height="3.5" rx="1.75" fill="#1B2A4A"/>
+                    <rect x="13" y="30"   width="18" height="3.5" rx="1.75" fill="#1B2A4A"/>
+                    <circle cx="22" cy="14" r="6" fill="#C4973A"/>
+                    <line x1="19" y1="9.5" x2="14" y2="4.5" stroke="#C4973A" stroke-width="1.8" stroke-linecap="round"/>
+                    <line x1="25" y1="9.5" x2="30" y2="4.5" stroke="#C4973A" stroke-width="1.8" stroke-linecap="round"/>
+                    <circle cx="14" cy="4.5" r="2" fill="#D9B96A"/>
+                    <circle cx="30" cy="4.5" r="2" fill="#D9B96A"/>
+                    <circle cx="19.5" cy="14" r="1.5" fill="#1B2A4A"/>
+                    <circle cx="24.5" cy="14" r="1.5" fill="#1B2A4A"/>
+                </svg>
+                <div>
+                    <div class="hotel-name-main" id="hotel-title-tap">Love Bee TeaJu Hotel</div>
+                    <div class="hotel-name-sub">러브비태주 호텔</div>
+                </div>
+            </div>
+            <div class="hotel-stars">★ ★ ★ ★ ★</div>
+        </div>
+
+        <div class="main-content">
+            <div class="welcome-text">
+                <h2>Welcome</h2>
+                <p>원하시는 서비스를 선택해 주세요</p>
+            </div>
+
+            <div class="service-card checkin" onclick="goCheckin()">
+                <div class="card-icon">🔑</div>
+                <div class="card-text">
+                    <h3>Check In</h3>
+                    <p>체크인 · 입실 서비스</p>
+                </div>
+                <div class="card-arrow">›</div>
+            </div>
+
+            <div class="service-card checkout" onclick="goCheckout()">
+                <div class="card-icon">🏨</div>
+                <div class="card-text">
+                    <h3>Check Out</h3>
+                    <p>체크아웃 · 퇴실 서비스</p>
+                </div>
+                <div class="card-arrow">›</div>
+            </div>
+        </div>
+
+        <!-- 하단 장식 -->
+        <div class="bottom-info">
+            <div class="gold-divider"><div class="gold-diamond"></div></div>
+
+            <div class="time-display">
+                <div class="time-clock" id="clock">--:--:--</div>
+                <div class="time-date"  id="date-display">----년 --월 --일</div>
+            </div>
+
+            <div class="slogan">"Where every stay becomes a memory."</div>
+
+            <div class="checkin-hours">CHECK-IN 15:00 &nbsp;·&nbsp; CHECK-OUT 11:00</div>
+
+            <div class="footer-text">LOVE BEE TEAJU HOTEL · 24H SELF CHECK-IN</div>
+        </div>
+    </div>
+
+
+    <!-- ══════════════════════════════
+         CHECK-IN FORM
+    ══════════════════════════════ -->
+    <div class="screen" id="screen-checkin-form">
+        <div class="form-header-bar">
+            <button class="back-btn" onclick="showScreen('screen-main')">‹</button>
+            <div class="form-title">Check In</div>
+        </div>
+
+        <div class="form-body">
+            <div class="form-subtitle">본인 정보 입력</div>
+            <div class="form-desc">예약 시 등록된 정보를 정확히 입력해 주세요</div>
+
+            <div class="field-group">
+                <label class="field-label">이름</label>
+                <input type="text" class="field-input" id="ci-name" placeholder="홍길동">
+            </div>
+
+            <!-- 나이 + 성별 한 줄 -->
+            <div class="row-2 field-spacer">
+                <div class="field-group">
+                    <label class="field-label">나이</label>
+                    <input type="number" class="field-input" id="ci-age" placeholder="25" min="1" max="120">
+                </div>
+                <div class="field-group">
+                    <label class="field-label">성별</label>
+                    <div class="radio-group">
+                        <div class="radio-btn" id="ci-g-m" onclick="selectGender('ci','남성')">남성</div>
+                        <div class="radio-btn" id="ci-g-f" onclick="selectGender('ci','여성')">여성</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label">생년월일</label>
+                <div class="date-parts">
+                    <input type="text" inputmode="numeric" maxlength="4" class="date-part year-part"  id="ci-birth-y" placeholder="YYYY" oninput="dateAdvance(this,4,'ci-birth-m')">
+                    <span class="date-sep">·</span>
+                    <input type="text" inputmode="numeric" maxlength="2" class="date-part month-part" id="ci-birth-m" placeholder="MM"   oninput="dateAdvance(this,2,'ci-birth-d')">
+                    <span class="date-sep">·</span>
+                    <input type="text" inputmode="numeric" maxlength="2" class="date-part day-part"   id="ci-birth-d" placeholder="DD">
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label">추가사항</label>
+                <input type="text" class="field-input" id="ci-notes" placeholder="없으면 비워두세요">
+            </div>
+
+            <div class="error-msg" id="ci-error">일치하는 예약 정보를 찾을 수 없습니다.</div>
+            <button class="btn-gold" onclick="doCheckin()">체크인 확인</button>
+        </div>
+    </div>
+
+
+    <!-- ══════════════════════════════
+         CHECK-IN BENEFITS
+    ══════════════════════════════ -->
+    <div class="screen" id="screen-checkin-benefits">
+        <div class="form-header-bar" style="justify-content:center;">
+            <div style="font-family:'Montserrat',sans-serif; color:var(--gold-light); font-size:13px; font-weight:600; letter-spacing:1.5px;">
+                LOVE BEE TEAJU HOTEL
+            </div>
+        </div>
+
+        <div class="benefits-body">
+            <div class="benefits-guest">
+                <div class="benefits-guest-label">환영합니다</div>
+                <div class="benefits-guest-name" id="benefits-guest-name">—</div>
+            </div>
+
+            <div class="benefits-title">포함된 혜택</div>
+
+            <div class="benefit-card" id="benefit-breakfast">
+                <div class="benefit-icon-wrap">🍳</div>
+                <div>
+                    <div class="benefit-info-name">조식</div>
+                    <div class="benefit-info-sub">Breakfast · 매일 아침 제공</div>
+                </div>
+                <div class="benefit-check" id="benefit-breakfast-check">✓</div>
+            </div>
+
+            <div class="benefit-card" id="benefit-dinner">
+                <div class="benefit-icon-wrap">🍽️</div>
+                <div>
+                    <div class="benefit-info-name">석식</div>
+                    <div class="benefit-info-sub">Dinner · 매일 저녁 제공</div>
+                </div>
+                <div class="benefit-check" id="benefit-dinner-check">✓</div>
+            </div>
+
+            <div class="benefits-note">
+                자세한 내용은 직원에게 물어주세요.
+            </div>
+
+            <button class="btn-gold" style="margin-top:24px;" onclick="showScreen('screen-checkin-success')">확인</button>
+        </div>
+    </div>
+
+
+    <!-- ══════════════════════════════
+         CHECK-IN SUCCESS
+    ══════════════════════════════ -->
+    <div class="screen" id="screen-checkin-success">
+        <div class="form-header-bar" style="justify-content:center;">
+            <div style="font-family:'Montserrat',sans-serif; color:var(--gold-light); font-size:13px; font-weight:600; letter-spacing:1.5px;">
+                LOVE BEE TEAJU HOTEL
+            </div>
+        </div>
+        <div class="success-body">
+            <div class="success-icon gold">🔑</div>
+            <div class="success-title">Check-In Complete</div>
+            <div class="room-card gold">
+                <div class="room-label">배정된 객실</div>
+                <div class="room-name" id="ci-room-name">—</div>
+            </div>
+            <div class="success-msg">직원에게 키를 받아가세요.</div>
+            <div class="countdown" id="ci-countdown">5초 후 메인화면으로 돌아갑니다</div>
+        </div>
+    </div>
+
+
+    <!-- ══════════════════════════════
+         CHECK-OUT FORM
+    ══════════════════════════════ -->
+    <div class="screen" id="screen-checkout-form">
+        <div class="form-header-bar">
+            <button class="back-btn" onclick="showScreen('screen-main')">‹</button>
+            <div class="form-title">Check Out</div>
+        </div>
+
+        <div class="form-body">
+            <div class="form-subtitle">본인 정보 입력</div>
+            <div class="form-desc">체크인 시 등록된 정보를 정확히 입력해 주세요</div>
+
+            <div class="field-group">
+                <label class="field-label">이름</label>
+                <input type="text" class="field-input" id="co-name" placeholder="홍길동">
+            </div>
+
+            <div class="row-2 field-spacer">
+                <div class="field-group">
+                    <label class="field-label">나이</label>
+                    <input type="number" class="field-input" id="co-age" placeholder="25" min="1" max="120">
+                </div>
+                <div class="field-group">
+                    <label class="field-label">성별</label>
+                    <div class="radio-group">
+                        <div class="radio-btn" id="co-g-m" onclick="selectGender('co','남성')">남성</div>
+                        <div class="radio-btn" id="co-g-f" onclick="selectGender('co','여성')">여성</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label">생년월일</label>
+                <div class="date-parts">
+                    <input type="text" inputmode="numeric" maxlength="4" class="date-part year-part"  id="co-birth-y" placeholder="YYYY" oninput="dateAdvance(this,4,'co-birth-m')">
+                    <span class="date-sep">·</span>
+                    <input type="text" inputmode="numeric" maxlength="2" class="date-part month-part" id="co-birth-m" placeholder="MM"   oninput="dateAdvance(this,2,'co-birth-d')">
+                    <span class="date-sep">·</span>
+                    <input type="text" inputmode="numeric" maxlength="2" class="date-part day-part"   id="co-birth-d" placeholder="DD">
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label">추가사항</label>
+                <input type="text" class="field-input" id="co-notes" placeholder="없으면 비워두세요">
+            </div>
+
+            <div class="error-msg" id="co-error">일치하는 체크인 정보를 찾을 수 없습니다.</div>
+            <button class="btn-blue" onclick="doCheckoutSearch()">다음</button>
+        </div>
+    </div>
+
+
+    <!-- ══════════════════════════════
+         CHECK-OUT CONFIRM
+    ══════════════════════════════ -->
+    <div class="screen" id="screen-checkout-confirm">
+        <div class="form-header-bar">
+            <button class="back-btn" onclick="showScreen('screen-checkout-form')">‹</button>
+            <div class="form-title">객실 확인</div>
+        </div>
+        <div class="form-body">
+            <div class="form-subtitle">체크아웃할 객실</div>
+            <div class="form-desc">아래 객실을 확인 후 체크아웃을 진행해 주세요</div>
+            <div class="room-card blue" style="margin-bottom:24px;">
+                <div class="room-label">배정된 객실</div>
+                <div class="room-name" id="co-room-confirm">—</div>
+            </div>
+            <button class="btn-blue" onclick="doCheckout()">체크아웃 확인</button>
+        </div>
+    </div>
+
+
+    <!-- ══════════════════════════════
+         CHECK-OUT SUCCESS
+    ══════════════════════════════ -->
+    <div class="screen" id="screen-checkout-success">
+        <div class="form-header-bar" style="justify-content:center;">
+            <div style="font-family:'Montserrat',sans-serif; color:var(--gold-light); font-size:13px; font-weight:600; letter-spacing:1.5px;">
+                LOVE BEE TEAJU HOTEL
+            </div>
+        </div>
+        <div class="success-body">
+            <div class="success-icon blue">🏨</div>
+            <div class="success-title">Check-Out Complete</div>
+            <div class="room-card blue">
+                <div class="room-label">퇴실 객실</div>
+                <div class="room-name" id="co-room-done">—</div>
+            </div>
+            <div class="success-msg">직원에게 키를 반납하고 가세요.</div>
+            <div class="countdown" id="co-countdown">5초 후 메인화면으로 돌아갑니다</div>
+        </div>
+    </div>
+
+
+    <!-- ══════════════════════════════
+         STAFF SCREEN  (제목 3번 탭)
+    ══════════════════════════════ -->
+    <div class="screen" id="screen-staff">
+        <div class="form-header-bar">
+            <button class="back-btn" onclick="showScreen('screen-main')">‹</button>
+            <div class="form-title">Staff <span class="staff-badge">STAFF</span></div>
+            <button class="header-done-btn" id="staff-done-btn" onclick="addReservation()" style="display:none;">완료</button>
+        </div>
+
+        <div class="form-body">
+
+            <!-- 탭 -->
+            <div class="staff-tabs">
+                <div class="staff-tab active" id="tab-status" onclick="switchTab('status')">현황</div>
+                <div class="staff-tab"        id="tab-add"    onclick="switchTab('add')">예약 등록</div>
+            </div>
+
+            <!-- ── 패널 1: 현황 ── -->
+            <div class="staff-panel active" id="panel-status">
+
+                <!-- 방 상태판 -->
+                <div class="form-subtitle" style="margin-bottom:12px;">방 상태</div>
+                <div class="room-status-grid" id="room-status-grid">
+                    <!-- JS로 렌더 -->
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- 예약 목록 -->
+                <div class="form-subtitle" style="margin-bottom:12px;">전체 예약 현황</div>
+                <div id="reservations-list"></div>
+            </div>
+
+            <!-- ── 패널 2: 예약 등록 ── -->
+            <div class="staff-panel" id="panel-add">
+
+                <button class="btn-add-reservation" onclick="toggleAddForm()">
+                    <span id="add-form-btn-text">＋ 새 예약 등록</span>
+                </button>
+
+                <div class="add-form-box" id="add-form-box">
+                    <div class="form-subtitle" style="font-size:15px; margin-bottom:4px;">고객 정보 입력</div>
+                    <div class="form-desc" style="margin-bottom:16px;">체크인할 고객 정보와 객실을 등록해 주세요</div>
+
+                    <div class="field-group">
+                        <label class="field-label">이름</label>
+                        <input type="text" class="field-input" id="st-name" placeholder="홍길동">
+                    </div>
+
+                    <div class="row-2 field-spacer">
+                        <div class="field-group">
+                            <label class="field-label">나이</label>
+                            <input type="number" class="field-input" id="st-age" placeholder="25" min="1" max="120">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">성별</label>
+                            <div class="radio-group">
+                                <div class="radio-btn" id="st-g-m" onclick="selectGender('st','남성')">남성</div>
+                                <div class="radio-btn" id="st-g-f" onclick="selectGender('st','여성')">여성</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label">생년월일</label>
+                        <div class="date-parts">
+                            <input type="text" inputmode="numeric" maxlength="4" class="date-part year-part"  id="st-birth-y" placeholder="YYYY" oninput="dateAdvance(this,4,'st-birth-m')">
+                            <span class="date-sep">·</span>
+                            <input type="text" inputmode="numeric" maxlength="2" class="date-part month-part" id="st-birth-m" placeholder="MM"   oninput="dateAdvance(this,2,'st-birth-d')">
+                            <span class="date-sep">·</span>
+                            <input type="text" inputmode="numeric" maxlength="2" class="date-part day-part"   id="st-birth-d" placeholder="DD">
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label">배정 객실</label>
+                        <select class="field-input" id="st-room">
+                            <option value="">객실 선택</option>
+                            <option value="Blue Room">Blue Room · 디럭스</option>
+                            <option value="BlueGold Room">BlueGold Room · 프리미엄 스위트</option>
+                        </select>
+                    </div>
+
+                    <div class="row-2 field-spacer">
+                        <div class="field-group">
+                            <label class="field-label">체크인 날짜</label>
+                            <input type="date" class="field-input" id="st-checkin-date">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">체크아웃 날짜</label>
+                            <input type="date" class="field-input" id="st-checkout-date">
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label">식사 혜택</label>
+                        <div class="meal-toggle-group">
+                            <div class="meal-toggle" id="st-meal-breakfast" onclick="toggleMeal('breakfast')">
+                                <div class="meal-icon">🍳</div>
+                                <div class="meal-name">조식</div>
+                                <div class="meal-sub">Breakfast</div>
+                            </div>
+                            <div class="meal-toggle" id="st-meal-dinner" onclick="toggleMeal('dinner')">
+                                <div class="meal-icon">🍽️</div>
+                                <div class="meal-name">석식</div>
+                                <div class="meal-sub">Dinner</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="error-msg" id="st-error">이름, 나이, 성별, 생년월일, 객실은 필수입니다.</div>
+                    <button class="btn-gold" style="margin-top:6px;" onclick="addReservation()">등록 완료</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+/* ══════════════════
+   STATE
+══════════════════ */
+const ROOMS = ['Blue Room', 'BlueGold Room'];
+let reservations  = [];   // { name, age, gender, birth, room, meals:{breakfast,dinner}, checkedIn }
+let genders       = { ci:'', co:'', st:'' };
+let meals         = { breakfast: false, dinner: false };
+let pendingCheckout = null;
+let tapCount = 0, tapTimer = null;
+
+/* ══════════════════
+   CLOCK
+══════════════════ */
+function updateClock() {
+    const now = new Date();
+    const kst = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+
+    const hh = String(kst.getHours()).padStart(2,'0');
+    const mm = String(kst.getMinutes()).padStart(2,'0');
+    const ss = String(kst.getSeconds()).padStart(2,'0');
+    document.getElementById('clock').textContent = `${hh}:${mm}:${ss}`;
+
+    const days = ['일','월','화','수','목','금','토'];
+    const y  = kst.getFullYear();
+    const mo = kst.getMonth() + 1;
+    const d  = kst.getDate();
+    const dw = days[kst.getDay()];
+    document.getElementById('date-display').textContent =
+        `${y}년 ${mo}월 ${d}일 (${dw})`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* ══════════════════
+   SCREEN
+══════════════════ */
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+function goCheckin() {
+    clearForm('ci');
+    document.getElementById('ci-error').style.display = 'none';
+    showScreen('screen-checkin-form');
+}
+
+function goCheckout() {
+    clearForm('co');
+    document.getElementById('co-error').style.display = 'none';
+    showScreen('screen-checkout-form');
+}
+
+/* ══════════════════
+   SECRET: 제목 3번 탭
+══════════════════ */
+document.getElementById('hotel-title-tap').addEventListener('click', () => {
+    tapCount++;
+    clearTimeout(tapTimer);
+    tapTimer = setTimeout(() => { tapCount = 0; }, 2000);
+    if (tapCount >= 3) {
+        tapCount = 0;
+        renderAll();
+        clearStaffForm();
+        switchTab('status');
+        showScreen('screen-staff');
+    }
+});
+
+/* ══════════════════
+   MEAL TOGGLE
+══════════════════ */
+function toggleMeal(type) {
+    meals[type] = !meals[type];
+    document.getElementById('st-meal-' + type).classList.toggle('selected', meals[type]);
+}
+
+function resetMeals() {
+    meals = { breakfast: false, dinner: false };
+    ['breakfast','dinner'].forEach(t => {
+        const el = document.getElementById('st-meal-' + t);
+        if (el) el.classList.remove('selected');
+    });
+}
+
+/* ══════════════════
+   DATE AUTO-ADVANCE
+══════════════════ */
+function dateAdvance(el, maxLen, nextId) {
+    // 숫자만 허용
+    el.value = el.value.replace(/\D/g,'');
+    if (el.value.length >= maxLen) {
+        const next = document.getElementById(nextId);
+        if (next) next.focus();
+    }
+}
+
+/* ══════════════════
+   TOGGLE ADD FORM
+══════════════════ */
+let addFormOpen = false;
+function toggleAddForm() {
+    addFormOpen = !addFormOpen;
+    document.getElementById('add-form-box').classList.toggle('open', addFormOpen);
+    document.getElementById('add-form-btn-text').textContent =
+        addFormOpen ? '✕ 닫기' : '＋ 새 예약 등록';
+    if (!addFormOpen) { clearStaffForm(); }
+}
+
+/* ══════════════════
+   STAFF TABS
+══════════════════ */
+function switchTab(tab) {
+    ['status','add'].forEach(t => {
+        document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+        document.getElementById('panel-' + t).classList.toggle('active', t === tab);
+    });
+    const doneBtn = document.getElementById('staff-done-btn');
+    if (doneBtn) doneBtn.style.display = (tab === 'add') ? 'block' : 'none';
+}
+
+/* ══════════════════
+   GENDER
+══════════════════ */
+function selectGender(prefix, gender) {
+    genders[prefix] = gender;
+    const map = { '남성':'m', '여성':'f', '기타':'o' };
+    Object.keys(map).forEach(g => {
+        const el = document.getElementById(prefix + '-g-' + map[g]);
+        if (el) el.classList.toggle('selected', g === gender);
+    });
+}
+
+/* ══════════════════
+   CHECK-IN
+══════════════════ */
+function doCheckin() {
+    const input = getFormValues('ci');
+    const errEl = document.getElementById('ci-error');
+    const match = reservations.find(r =>
+        r.name === input.name && r.age === input.age &&
+        r.gender === input.gender && r.birth === input.birth &&
+        !r.checkedIn
+    );
+    if (!match) { errEl.style.display = 'block'; return; }
+    errEl.style.display = 'none';
+    match.checkedIn = true;
+
+    // 혜택 화면 세팅
+    document.getElementById('benefits-guest-name').textContent = match.name + ' 님';
+    renderBenefitCard('breakfast', match.meals.breakfast);
+    renderBenefitCard('dinner',    match.meals.dinner);
+
+    // 성공 화면 미리 세팅
+    document.getElementById('ci-room-name').textContent = match.room;
+
+    showScreen('screen-checkin-benefits');
+    // 성공 화면으로 넘어간 뒤 카운트다운 시작
+    const origBtn = document.querySelector('#screen-checkin-benefits .btn-gold');
+    origBtn.onclick = () => {
+        showScreen('screen-checkin-success');
+        startCountdown('ci-countdown', 5, () => { clearForm('ci'); showScreen('screen-main'); });
+    };
+}
+
+/* ══════════════════
+   CHECK-OUT SEARCH
+══════════════════ */
+function doCheckoutSearch() {
+    const input = getFormValues('co');
+    const errEl = document.getElementById('co-error');
+    const match = reservations.find(r =>
+        r.name === input.name && r.age === input.age &&
+        r.gender === input.gender && r.birth === input.birth &&
+        r.checkedIn
+    );
+    if (!match) { errEl.style.display = 'block'; return; }
+    errEl.style.display = 'none';
+    pendingCheckout = match;
+    document.getElementById('co-room-confirm').textContent = match.room;
+    showScreen('screen-checkout-confirm');
+}
+
+/* ══════════════════
+   CHECK-OUT CONFIRM
+══════════════════ */
+function doCheckout() {
+    if (!pendingCheckout) return;
+    const roomName = pendingCheckout.room;
+    pendingCheckout.checkedIn = false;
+    pendingCheckout = null;
+    document.getElementById('co-room-done').textContent = roomName;
+    showScreen('screen-checkout-success');
+    startCountdown('co-countdown', 5, () => { clearForm('co'); showScreen('screen-main'); });
+}
+
+/* ══════════════════
+   FORCE CHECKOUT (직원)
+══════════════════ */
+function forceCheckout(i) {
+    if (!reservations[i]) return;
+    reservations[i].checkedIn = false;
+    renderAll();
+}
+
+/* ══════════════════
+   COUNTDOWN
+══════════════════ */
+function startCountdown(elId, seconds, callback) {
+    let sec = seconds;
+    const el = document.getElementById(elId);
+    el.textContent = seconds + '초 후 메인화면으로 돌아갑니다';
+    const tick = setInterval(() => {
+        sec--;
+        if (sec <= 0) { clearInterval(tick); callback(); }
+        else el.textContent = sec + '초 후 메인화면으로 돌아갑니다';
+    }, 1000);
+}
+
+/* ══════════════════
+   STAFF: ADD
+══════════════════ */
+function addReservation() {
+    const name   = document.getElementById('st-name').value.trim();
+    const age    = document.getElementById('st-age').value.trim();
+    const gender = genders['st'];
+    const sy = document.getElementById('st-birth-y').value.trim();
+    const sm = document.getElementById('st-birth-m').value.trim().padStart(2,'0');
+    const sd = document.getElementById('st-birth-d').value.trim().padStart(2,'0');
+    const birth = (sy && sm && sd) ? `${sy}-${sm}-${sd}` : '';
+    const room   = document.getElementById('st-room').value;
+    const checkinDate  = document.getElementById('st-checkin-date').value;
+    const checkoutDate = document.getElementById('st-checkout-date').value;
+    const errEl  = document.getElementById('st-error');
+
+    if (!name || !age || !gender || !birth || !room) {
+        errEl.style.display = 'block'; return;
+    }
+    errEl.style.display = 'none';
+    reservations.push({ name, age, gender, birth, room, checkinDate, checkoutDate, meals: { breakfast: meals.breakfast, dinner: meals.dinner }, checkedIn: false });
+    clearStaffForm();
+    renderAll();
+    switchTab('status');
+}
+
+function deleteReservation(i) {
+    reservations.splice(i, 1);
+    renderAll();
+}
+
+/* ══════════════════
+   RENDER BENEFIT CARD
+══════════════════ */
+function renderBenefitCard(type, active) {
+    const card  = document.getElementById('benefit-' + type);
+    const check = document.getElementById('benefit-' + type + '-check');
+    if (active) {
+        card.classList.remove('no-benefit');
+        check.textContent = '✓';
+        check.style.color = 'var(--gold)';
+    } else {
+        card.classList.add('no-benefit');
+        check.textContent = '✕';
+        check.style.color = '#C8E3F0';
+    }
+}
+
+/* ══════════════════
+   RENDER ALL
+══════════════════ */
+function renderAll() {
+    renderRoomStatus();
+    renderReservations();
+}
+
+function renderRoomStatus() {
+    const grid = document.getElementById('room-status-grid');
+    grid.innerHTML = ROOMS.map(room => {
+        const guest = reservations.find(r => r.room === room && r.checkedIn);
+        const occupied = !!guest;
+        return `
+        <div class="room-status-card ${occupied ? 'occupied' : 'vacant'}">
+            <div class="room-status-name">${room}</div>
+            <div class="room-status-dot ${occupied ? 'occupied' : 'vacant'}"></div>
+            <div class="room-status-text ${occupied ? 'occupied' : 'vacant'}">${occupied ? '사용 중' : '비어있음'}</div>
+            ${occupied ? `<div class="room-guest-name">${guest.name}</div>` : ''}
+        </div>`;
+    }).join('');
+}
+
+function renderReservations() {
+    const el = document.getElementById('reservations-list');
+    if (reservations.length === 0) {
+        el.innerHTML = '<div style="font-size:13px;color:#B0C4D4;text-align:center;padding:12px 0;">등록된 예약이 없습니다</div>';
+        return;
+    }
+    el.innerHTML = reservations.map((r, i) => {
+        const ciDate = r.checkinDate  ? r.checkinDate.replace(/-/g, '.') : '—';
+        const coDate = r.checkoutDate ? r.checkoutDate.replace(/-/g, '.') : '—';
+        return `
+        <div class="res-item" style="border:1.5px solid ${r.checkedIn ? '#AED6F1' : '#EDD89A'}">
+            <div class="res-row">
+                <span class="res-name">${r.name}</span>
+                <span class="res-badge ${r.checkedIn ? 'checked-in' : 'waiting'}">${r.checkedIn ? '체크인 중' : '대기'}</span>
+            </div>
+            <div class="res-info">${r.room} · ${r.gender} · ${r.age}세</div>
+            <div class="res-info" style="margin-top:3px;font-size:12px;color:#6BA3C4;">체크인 ${ciDate} → 체크아웃 ${coDate}</div>
+            <div class="res-actions">
+                ${r.checkedIn
+                    ? `<button class="btn-red" onclick="forceCheckout(${i})">강제 체크아웃</button>`
+                    : `<button class="btn-red" onclick="deleteReservation(${i})">삭제</button>`
+                }
+            </div>
+        </div>`;
+    }).join('');
+}
+
+/* ══════════════════
+   HELPERS
+══════════════════ */
+function getFormValues(prefix) {
+    const y = document.getElementById(prefix + '-birth-y').value.trim();
+    const m = document.getElementById(prefix + '-birth-m').value.trim().padStart(2,'0');
+    const d = document.getElementById(prefix + '-birth-d').value.trim().padStart(2,'0');
+    const birth = (y && m && d) ? `${y}-${m}-${d}` : '';
+    return {
+        name:   document.getElementById(prefix + '-name').value.trim(),
+        age:    document.getElementById(prefix + '-age').value.trim(),
+        gender: genders[prefix],
+        birth,
+        notes:  (document.getElementById(prefix + '-notes') || {}).value?.trim() || '',
+    };
+}
+
+function clearForm(prefix) {
+    ['name','age','notes'].forEach(f => {
+        const el = document.getElementById(prefix + '-' + f);
+        if (el) el.value = '';
+    });
+    ['birth-y','birth-m','birth-d'].forEach(f => {
+        const el = document.getElementById(prefix + '-' + f);
+        if (el) el.value = '';
+    });
+    genders[prefix] = '';
+    ['m','f'].forEach(s => {
+        const el = document.getElementById(prefix + '-g-' + s);
+        if (el) el.classList.remove('selected');
+    });
+}
+
+function clearStaffForm() {
+    clearForm('st');
+    const r = document.getElementById('st-room');
+    if (r) r.value = '';
+    const ci = document.getElementById('st-checkin-date');
+    if (ci) ci.value = '';
+    const co = document.getElementById('st-checkout-date');
+    if (co) co.value = '';
+    const e = document.getElementById('st-error');
+    if (e) e.style.display = 'none';
+    resetMeals();
+    addFormOpen = false;
+    const box = document.getElementById('add-form-box');
+    if (box) box.classList.remove('open');
+    const btn = document.getElementById('add-form-btn-text');
+    if (btn) btn.textContent = '＋ 새 예약 등록';
+}
+
+renderAll();
+</script>
+</body>
+</html>
