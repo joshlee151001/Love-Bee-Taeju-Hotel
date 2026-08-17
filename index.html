@@ -983,7 +983,7 @@
                 자세한 내용은 직원에게 물어주세요.
             </div>
 
-            <button class="btn-gold" style="margin-top:24px;" onclick="showScreen('screen-checkin-success')">확인</button>
+            <button class="btn-gold" style="margin-top:24px;" onclick="showCheckinSuccess()">확인</button>
         </div>
     </div>
 
@@ -1394,17 +1394,6 @@ function dateAdvance(el, maxLen, nextId) {
     }
 }
 
-/* ══════════════════
-   TOGGLE ADD FORM
-══════════════════ */
-let addFormOpen = false;
-function toggleAddForm() {
-    addFormOpen = !addFormOpen;
-    document.getElementById('add-form-box').classList.toggle('open', addFormOpen);
-    document.getElementById('add-form-btn-text').textContent =
-        addFormOpen ? '✕ 닫기' : '＋ 새 예약 등록';
-    if (!addFormOpen) { clearStaffForm(); }
-}
 
 /* ══════════════════
    STAFF TABS
@@ -1433,33 +1422,45 @@ function selectGender(prefix, gender) {
 /* ══════════════════
    CHECK-IN
 ══════════════════ */
+function showCheckinSuccess() {
+    showScreen('screen-checkin-success');
+    startCountdown('ci-countdown', 5, () => { clearForm('ci'); dbLoad(); showScreen('screen-main'); });
+}
+
 async function doCheckin() {
     const input = getFormValues('ci');
     const errEl = document.getElementById('ci-error');
+
+    if (!input.name || !input.age || !input.gender || !input.birth) {
+        errEl.textContent = '이름, 나이, 성별, 생년월일을 모두 입력해 주세요.';
+        errEl.style.display = 'block'; return;
+    }
+
     const match = reservations.find(r =>
         r.name === input.name && r.age === input.age &&
         r.gender === input.gender && r.birth === input.birth &&
         !r.checkedIn
     );
-    if (!match) { errEl.style.display = 'block'; return; }
+    if (!match) {
+        errEl.textContent = '일치하는 예약 정보를 찾을 수 없습니다.';
+        errEl.style.display = 'block'; return;
+    }
     errEl.style.display = 'none';
-    await dbUpdate(match._id, { checked_in: true });
+
+    try {
+        await dbUpdate(match._id, { checked_in: true });
+    } catch(e) {
+        errEl.textContent = 'DB 오류: ' + (e.message || '저장에 실패했습니다.');
+        errEl.style.display = 'block'; return;
+    }
     match.checkedIn = true;
 
-    // 혜택 화면 세팅
     document.getElementById('benefits-guest-name').textContent = match.name + ' 님';
     renderBenefitCard('breakfast', match.meals.breakfast);
     renderBenefitCard('dinner',    match.meals.dinner);
-
-    // 성공 화면 미리 세팅
     document.getElementById('ci-room-name').textContent = match.room;
 
     showScreen('screen-checkin-benefits');
-    const origBtn = document.querySelector('#screen-checkin-benefits .btn-gold');
-    origBtn.onclick = () => {
-        showScreen('screen-checkin-success');
-        startCountdown('ci-countdown', 5, () => { clearForm('ci'); dbLoad(); showScreen('screen-main'); });
-    };
 }
 
 /* ══════════════════
@@ -1468,12 +1469,21 @@ async function doCheckin() {
 function doCheckoutSearch() {
     const input = getFormValues('co');
     const errEl = document.getElementById('co-error');
+
+    if (!input.name || !input.age || !input.gender || !input.birth) {
+        errEl.textContent = '이름, 나이, 성별, 생년월일을 모두 입력해 주세요.';
+        errEl.style.display = 'block'; return;
+    }
+
     const match = reservations.find(r =>
         r.name === input.name && r.age === input.age &&
         r.gender === input.gender && r.birth === input.birth &&
         r.checkedIn
     );
-    if (!match) { errEl.style.display = 'block'; return; }
+    if (!match) {
+        errEl.textContent = '일치하는 체크인 정보를 찾을 수 없습니다.';
+        errEl.style.display = 'block'; return;
+    }
     errEl.style.display = 'none';
     pendingCheckout = match;
     document.getElementById('co-room-confirm').textContent = match.room;
@@ -1486,7 +1496,12 @@ function doCheckoutSearch() {
 async function doCheckout() {
     if (!pendingCheckout) return;
     const roomName = pendingCheckout.room;
-    await dbUpdate(pendingCheckout._id, { checked_in: false });
+    try {
+        await dbUpdate(pendingCheckout._id, { checked_in: false });
+    } catch(e) {
+        alert('DB 오류: ' + (e.message || '저장에 실패했습니다.'));
+        return;
+    }
     pendingCheckout = null;
     document.getElementById('co-room-done').textContent = roomName;
     showScreen('screen-checkout-success');
@@ -1499,8 +1514,12 @@ async function doCheckout() {
 async function forceCheckout(i) {
     if (!reservations[i]) return;
     const id = reservations[i]._id;
-    await dbUpdate(id, { checked_in: false });
-    await dbLoad();
+    try {
+        await dbUpdate(id, { checked_in: false });
+        await dbLoad();
+    } catch(e) {
+        alert('강제 체크아웃 실패: ' + (e.message || 'DB 오류'));
+    }
 }
 
 /* ══════════════════
@@ -1525,9 +1544,9 @@ async function addReservation() {
     const age    = document.getElementById('st-age').value.trim();
     const gender = genders['st'];
     const sy = document.getElementById('st-birth-y').value.trim();
-    const sm = document.getElementById('st-birth-m').value.trim().padStart(2,'0');
-    const sd = document.getElementById('st-birth-d').value.trim().padStart(2,'0');
-    const birth = (sy && sm && sd) ? `${sy}-${sm}-${sd}` : '';
+    const sm = document.getElementById('st-birth-m').value.trim();
+    const sd = document.getElementById('st-birth-d').value.trim();
+    const birth = (sy && sm && sd) ? `${sy}-${sm.padStart(2,'0')}-${sd.padStart(2,'0')}` : '';
     const room   = document.getElementById('st-room').value;
     const checkinDate  = document.getElementById('st-checkin-date').value;
     const checkoutDate = document.getElementById('st-checkout-date').value;
@@ -1559,9 +1578,14 @@ async function addReservation() {
 }
 
 async function deleteReservation(i) {
+    if (!reservations[i]) return;
     const id = reservations[i]._id;
-    await dbDelete(id);
-    await dbLoad();
+    try {
+        await dbDelete(id);
+        await dbLoad();
+    } catch(e) {
+        alert('삭제 실패: ' + (e.message || 'DB 오류'));
+    }
 }
 
 /* ══════════════════
@@ -1636,9 +1660,9 @@ function renderReservations() {
 ══════════════════ */
 function getFormValues(prefix) {
     const y = document.getElementById(prefix + '-birth-y').value.trim();
-    const m = document.getElementById(prefix + '-birth-m').value.trim().padStart(2,'0');
-    const d = document.getElementById(prefix + '-birth-d').value.trim().padStart(2,'0');
-    const birth = (y && m && d) ? `${y}-${m}-${d}` : '';
+    const m = document.getElementById(prefix + '-birth-m').value.trim();
+    const d = document.getElementById(prefix + '-birth-d').value.trim();
+    const birth = (y && m && d) ? `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}` : '';
     return {
         name:   document.getElementById(prefix + '-name').value.trim(),
         age:    document.getElementById(prefix + '-age').value.trim(),
@@ -1675,11 +1699,8 @@ function clearStaffForm() {
     const e = document.getElementById('st-error');
     if (e) e.style.display = 'none';
     resetMeals();
-    addFormOpen = false;
     const box = document.getElementById('add-form-box');
-    if (box) box.classList.remove('open');
-    const btn = document.getElementById('add-form-btn-text');
-    if (btn) btn.textContent = '＋ 새 예약 등록';
+    if (box) box.classList.add('open');
 }
 
 dbLoad();
