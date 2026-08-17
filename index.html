@@ -1237,29 +1237,49 @@ const NEON_PASS = 'npg_KFrnQeM2kG7C';
 const NEON_CONN = 'postgresql://neondb_owner:npg_KFrnQeM2kG7C@ep-still-hall-az9opq7c-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require';
 
 async function neonQuery(query, params = []) {
-    const res = await fetch(`https://${NEON_HOST}/sql`, {
-        method: 'POST',
-        headers: {
-            'Authorization': 'Bearer ' + NEON_PASS,
-            'Content-Type': 'application/json',
-            'Neon-Connection-String': NEON_CONN
-        },
-        body: JSON.stringify({ query, params })
-    });
-    return await res.json();
+    try {
+        const res = await fetch(`https://${NEON_HOST}/sql`, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + NEON_PASS,
+                'Content-Type': 'application/json',
+                'Neon-Connection-String': NEON_CONN
+            },
+            body: JSON.stringify({ query, params })
+        });
+        if (!res.ok) {
+            const errText = await res.text();
+            console.error('Neon HTTP error:', res.status, errText);
+            throw new Error('DB 오류: ' + res.status);
+        }
+        const data = await res.json();
+        if (data.message || data.error) {
+            console.error('Neon query error:', data);
+            throw new Error(data.message || data.error);
+        }
+        return data;
+    } catch (e) {
+        console.error('neonQuery 실패:', e);
+        throw e;
+    }
 }
 
 async function dbLoad() {
-    const result = await neonQuery('SELECT * FROM reservations ORDER BY created_at');
-    if (!result.rows) { console.error(result); return; }
-    reservations = result.rows.map(r => ({
-        _id: r.id,
-        name: r.name, age: r.age, gender: r.gender, birth: r.birth,
-        room: r.room, checkinDate: r.checkin_date, checkoutDate: r.checkout_date,
-        meals: { breakfast: r.meals_breakfast, dinner: r.meals_dinner },
-        checkedIn: r.checked_in
-    }));
-    renderAll();
+    try {
+        const result = await neonQuery('SELECT * FROM reservations ORDER BY created_at');
+        if (!result.rows) { console.error('rows 없음:', result); return; }
+        reservations = result.rows.map(r => ({
+            _id: r.id,
+            name: r.name, age: r.age, gender: r.gender, birth: r.birth,
+            room: r.room, checkinDate: r.checkin_date, checkoutDate: r.checkout_date,
+            meals: { breakfast: r.meals_breakfast, dinner: r.meals_dinner },
+            checkedIn: r.checked_in
+        }));
+        renderAll();
+    } catch(e) {
+        console.error('dbLoad 실패:', e);
+        renderAll(); // 오프라인이어도 UI는 그림
+    }
 }
 
 async function dbAdd(r) {
@@ -1518,14 +1538,28 @@ async function addReservation() {
     const errEl  = document.getElementById('st-error');
 
     if (!name || !age || !gender || !birth || !room) {
-        errEl.style.display = 'block'; return;
+        errEl.style.display = 'block';
+        errEl.textContent = '이름, 나이, 성별, 생년월일, 객실은 필수입니다.';
+        return;
     }
     errEl.style.display = 'none';
-    const newRes = { name, age, gender, birth, room, checkinDate, checkoutDate, meals: { breakfast: meals.breakfast, dinner: meals.dinner } };
-    await dbAdd(newRes);
-    clearStaffForm();
-    await dbLoad();
-    switchTab('status');
+
+    const doneBtn = document.getElementById('staff-done-btn');
+    if (doneBtn) { doneBtn.disabled = true; doneBtn.textContent = '저장 중...'; }
+
+    try {
+        const newRes = { name, age, gender, birth, room, checkinDate, checkoutDate, meals: { breakfast: meals.breakfast, dinner: meals.dinner } };
+        await dbAdd(newRes);
+        clearStaffForm();
+        await dbLoad();
+        switchTab('status');
+    } catch(e) {
+        errEl.style.display = 'block';
+        errEl.textContent = '저장 실패: ' + (e.message || '네트워크 오류');
+        console.error('addReservation 실패:', e);
+    } finally {
+        if (doneBtn) { doneBtn.disabled = false; doneBtn.textContent = '완료'; }
+    }
 }
 
 async function deleteReservation(i) {
