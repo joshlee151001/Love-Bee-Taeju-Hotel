@@ -1226,75 +1226,65 @@
 
 <script>
 /* ══════════════════
-   NEON HTTP API
+   JSONBin.io Database
 ══════════════════ */
-const NEON_HOST = 'ep-still-hall-az9opq7c.c-3.ap-southeast-1.aws.neon.tech';
-const NEON_PASS = 'npg_KFrnQeM2kG7C';
-const NEON_CONN = 'postgresql://neondb_owner:npg_KFrnQeM2kG7C@ep-still-hall-az9opq7c.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require';
+const JB_KEY = '$2a$10$fAh2gFo750w7DKDscWTfq.tRLcgJ3UWTkrYrNsE7DPK6vkSwxDSfO';
+const JB_BIN = '6a828160da38895dfeed5332';
 
-async function neonQuery(query, params = []) {
-    try {
-        const res = await fetch(`https://${NEON_HOST}/sql`, {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer ' + NEON_PASS,
-                'Content-Type': 'application/json',
-                'Neon-Connection-String': NEON_CONN
-            },
-            body: JSON.stringify({ query, params })
-        });
-        if (!res.ok) {
-            const errText = await res.text();
-            console.error('Neon HTTP error:', res.status, errText);
-            throw new Error('DB 오류: ' + res.status);
-        }
-        const data = await res.json();
-        if (data.message || data.error) {
-            console.error('Neon query error:', data);
-            throw new Error(data.message || data.error);
-        }
-        return data;
-    } catch (e) {
-        console.error('neonQuery 실패:', e);
-        throw e;
-    }
+async function jbGet() {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${JB_BIN}/latest`, {
+        headers: { 'X-Master-Key': JB_KEY }
+    });
+    if (!res.ok) throw new Error('jbGet 실패: ' + res.status);
+    const data = await res.json();
+    return Array.isArray(data.record) ? data.record : [];
+}
+
+async function jbPut(arr) {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${JB_BIN}`, {
+        method: 'PUT',
+        headers: { 'X-Master-Key': JB_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify(arr)
+    });
+    if (!res.ok) throw new Error('jbPut 실패: ' + res.status);
 }
 
 async function dbLoad() {
     try {
-        const result = await neonQuery('SELECT * FROM reservations ORDER BY created_at');
-        if (!result.rows) { console.error('rows 없음:', result); return; }
-        reservations = result.rows.map(r => ({
-            _id: r.id,
-            name: r.name, age: r.age, gender: r.gender, birth: r.birth,
-            room: r.room, checkinDate: r.checkin_date, checkoutDate: r.checkout_date,
-            meals: { breakfast: r.meals_breakfast, dinner: r.meals_dinner },
-            checkedIn: r.checked_in
-        }));
+        reservations = await jbGet();
         renderAll();
     } catch(e) {
         console.error('dbLoad 실패:', e);
-        renderAll(); // 오프라인이어도 UI는 그림
+        renderAll();
     }
 }
 
 async function dbAdd(r) {
-    const result = await neonQuery(
-        `INSERT INTO reservations (name,age,gender,birth,room,checkin_date,checkout_date,meals_breakfast,meals_dinner,checked_in)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,false) RETURNING id`,
-        [r.name, r.age, r.gender, r.birth, r.room, r.checkinDate||null, r.checkoutDate||null, r.meals.breakfast, r.meals.dinner]
-    );
-    return result.rows?.[0]?.id || null;
+    const arr = await jbGet();
+    const newR = {
+        _id: Date.now().toString(),
+        name: r.name, age: r.age, gender: r.gender, birth: r.birth,
+        room: r.room, checkinDate: r.checkinDate || null, checkoutDate: r.checkoutDate || null,
+        meals: { breakfast: r.meals.breakfast, dinner: r.meals.dinner },
+        checkedIn: false
+    };
+    arr.push(newR);
+    await jbPut(arr);
+    return newR._id;
 }
 
 async function dbUpdate(id, fields) {
-    const sets = Object.keys(fields).map((k,i) => `${k}=$${i+2}`).join(',');
-    const vals = Object.values(fields);
-    await neonQuery(`UPDATE reservations SET ${sets} WHERE id=$1`, [id, ...vals]);
+    const arr = await jbGet();
+    const idx = arr.findIndex(r => r._id === id);
+    if (idx === -1) throw new Error('예약을 찾을 수 없음: ' + id);
+    arr[idx] = { ...arr[idx], ...fields };
+    await jbPut(arr);
 }
 
 async function dbDelete(id) {
-    await neonQuery('DELETE FROM reservations WHERE id=$1', [id]);
+    const arr = await jbGet();
+    const filtered = arr.filter(r => r._id !== id);
+    await jbPut(filtered);
 }
 
 /* ══════════════════
@@ -1448,7 +1438,7 @@ async function doCheckin() {
     errEl.style.display = 'none';
 
     try {
-        await dbUpdate(match._id, { checked_in: true });
+        await dbUpdate(match._id, { checkedIn: true });
     } catch(e) {
         errEl.textContent = 'DB 오류: ' + (e.message || '저장에 실패했습니다.');
         errEl.style.display = 'block'; return;
@@ -1497,7 +1487,7 @@ async function doCheckout() {
     if (!pendingCheckout) return;
     const roomName = pendingCheckout.room;
     try {
-        await dbUpdate(pendingCheckout._id, { checked_in: false });
+        await dbUpdate(pendingCheckout._id, { checkedIn: false });
     } catch(e) {
         alert('DB 오류: ' + (e.message || '저장에 실패했습니다.'));
         return;
@@ -1515,7 +1505,7 @@ async function forceCheckout(i) {
     if (!reservations[i]) return;
     const id = reservations[i]._id;
     try {
-        await dbUpdate(id, { checked_in: false });
+        await dbUpdate(id, { checkedIn: false });
         await dbLoad();
     } catch(e) {
         alert('강제 체크아웃 실패: ' + (e.message || 'DB 오류'));
