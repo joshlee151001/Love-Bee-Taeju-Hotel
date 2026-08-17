@@ -1143,11 +1143,7 @@
             <!-- ── 패널 2: 예약 등록 ── -->
             <div class="staff-panel" id="panel-add">
 
-                <button class="btn-add-reservation" onclick="toggleAddForm()">
-                    <span id="add-form-btn-text">＋ 새 예약 등록</span>
-                </button>
-
-                <div class="add-form-box" id="add-form-box">
+                <div class="add-form-box open" id="add-form-box">
                     <div class="form-subtitle" style="font-size:15px; margin-bottom:4px;">고객 정보 입력</div>
                     <div class="form-desc" style="margin-bottom:16px;">체크인할 고객 정보와 객실을 등록해 주세요</div>
 
@@ -1232,9 +1228,9 @@
 /* ══════════════════
    NEON HTTP API
 ══════════════════ */
-const NEON_HOST = 'ep-still-hall-az9opq7c-pooler.c-3.ap-southeast-1.aws.neon.tech';
+const NEON_HOST = 'ep-still-hall-az9opq7c.c-3.ap-southeast-1.aws.neon.tech';
 const NEON_PASS = 'npg_KFrnQeM2kG7C';
-const NEON_CONN = 'postgresql://neondb_owner:npg_KFrnQeM2kG7C@ep-still-hall-az9opq7c-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require';
+const NEON_CONN = 'postgresql://neondb_owner:npg_KFrnQeM2kG7C@ep-still-hall-az9opq7c.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require';
 
 async function neonQuery(query, params = []) {
     try {
